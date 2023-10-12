@@ -20,7 +20,7 @@ jobs:
         echo "Event: ${{ toJson(github.event) }}"
         echo "Compare: ${{ github.event.compare }}"
         for commit in ${{ github.event.commits }}; do
-            echo "Commit: $commit"
+            echo "Commit: toJson($commit)"
             for file in $commit.modified; do
                 echo "File: $file"
             done
