@@ -16,9 +16,9 @@ jobs:
         fetch-depth: 0
 
     - name: Show event data
-      run: |
       env:
         COMMITS: ${{ toJson(github.event.commits) }}
+      run: |
         echo "Event: ${{ toJson(github.event) }}"
         echo "Compare: ${{ github.event.compare }}"
         echo "Commits: $COMMITS"
@@ -28,4 +28,4 @@ jobs:
         GITHUB_SHA_BEFORE: ${{ github.event.before }}
         GITHUB_SHA_AFTER: ${{ github.sha }}
       run: |
-        git diff --name-only $GITHUB_SHA_BEFORE $GITHUB_SHA_BEFORE
+        git diff --name-only $GITHUB_SHA_BEFORE $GITHUB_SHA_AFTER
