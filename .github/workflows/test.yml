@@ -19,9 +19,9 @@ jobs:
       run: |
         echo "Event: ${{ toJson(github.event) }}"
         echo "Compare: ${{ github.event.compare }}"
-        for commit in ${{ toJson(github.event.commits) }}; do
+        for commit in ${{ github.event.commits }}; do
             echo "Commit: $commit"
-            for file in ${{ toJson(commit.modified ) }}; do
+            for file in $commit.modified; do
                 echo "File: $file"
             done
         done
