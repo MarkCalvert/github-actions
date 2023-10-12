@@ -21,7 +21,11 @@ jobs:
           echo "ENV_REF: $GITHUB_REF"
           echo "GITHUB_REF 1: ${{ github.ref }}"
           echo "GITHUB_REF_NAME: ${{ github.ref_name }}"
-          ${{ if github.base_ref }}echo "GITHUB_BASE_REF: ${{ github.base_ref }}"${{ else }}echo "Does not exist"${{ endif }}
+          if [ -n "${{ github.base_ref }}" ]; then
+            echo "GITHUB_BASE_REF: ${{ github.base_ref }}"
+          else
+            echo "Does not exist"
+          fi
       - name: Prepare the host matrix
         id: set-matrix
         env:
