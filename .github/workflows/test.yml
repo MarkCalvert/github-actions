@@ -19,7 +19,12 @@ jobs:
       run: |
         echo "Event: ${{ toJson(github.event) }}"
         echo "Compare: ${{ github.event.compare }}"
-        echo "Commits: ${{ toJson(github.event.commits) }}"
+        for commit in ${{ toJson(github.event.commits) }}; do
+            echo "Commit: $commit"
+            for file in ${{ toJson(commit.modified ) }}; do
+                echo "File: $file"
+            done
+        done
     
     - name: Get list of changed files
       run: |
