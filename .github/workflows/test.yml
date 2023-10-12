@@ -15,9 +15,9 @@ jobs:
 
     - name: Show event data
       run: |
-        echo ${{ github.event }}
-        echo ${{ github.event.compare }}
-        echo ${{ github.event.commits }}
+        echo "Event: "${{ github.event }}"
+        echo "Compare: "${{ github.event.compare }}"
+        echo "Commits: "${{ github.event.commits }}"
     
     - name: Get list of changed files
       run: |
