@@ -1,0 +1,46 @@
+name: Build and validate applications.
+on: push
+env:
+  GITHUB_REF: ${{ github.ref }}
+jobs:
+
+  prepare_matrix:
+    # needs: plan
+    runs-on: ubuntu-latest
+    container: singledigital/bay-ci-builder:3.x
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has_matrix: ${{ steps.check-matrix.outputs.has_matrix }}
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Test
+        run: |
+          echo "ENV_REF: $GITHUB_REF"
+          echo "GITHUB_REF 1: ${{ github.ref }}"
+          echo "GITHUB_REF_NAME: ${{ github.ref_name }}"
+      - name: Prepare the host matrix
+        id: set-matrix
+        env:
+          GITHUB_SHA_BEFORE: ${{ github.event.before }}
+          GITHUB_SHA_AFTER: ${{ github.sha }}
+        # Generate the list of projects that this PR is
+        # impacting so we only build required applications.
+        run: |
+          matrix=$(./.github/workflows/prepare_matrix)
+          echo "$matrix"
+          echo "::set-output name=matrix::{\"include\":$(echo $matrix)}"
+      - name: Check the matrix
+        id: check-matrix
+        run: |
+          matrix=$(./.github/workflows/prepare_matrix | gojq length)
+          echo "$matrix";
+          if [[ "$matrix" -gt 0 ]]; then
+            echo "==> [info]: Matrix has values, updating step output has_matrix=true."
+            echo "::set-output name=has_matrix::true"
+          else
+            echo "==> [info]: Matrix is empty, updating step output has_matrix=false."
+            echo "::set-output name=has_matrix::false"
+          fi

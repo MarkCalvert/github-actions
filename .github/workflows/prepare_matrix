@@ -1,0 +1,71 @@
+#! /usr/bin/env php
+
+<?php
+
+/**
+ * Script to build the matrix based on the git status.
+ */
+
+$matrix = [];
+
+$on_tag = `git name-rev --name-only --tags --no-undefined HEAD 2>/dev/null`;
+
+$base_branch = getenv('GITHUB_BASE_REF');
+$head_branch = getenv('GITHUB_REF');
+
+if (empty($base_branch)) {
+  $base_branch = 'master';
+}
+
+if ($base_branch == $head_branch) {
+  // Retrieves the SHA of the most recent commit on ref before and after the push, 
+  // uses git diff to get the names of the files that have changed between those two commits.
+  // The SHA of the most recent commit on ref before the push.
+  $sha_before = getenv('GITHUB_SHA_BEFORE');
+  // The SHA of the most recent commit on ref after the push.
+  $sha_after = getenv('GITHUB_SHA_AFTER');
+  $diff = explode(PHP_EOL, `git diff $sha_before $sha_after --name-only`);
+}
+else {
+  $diff = explode(PHP_EOL, `git diff origin/$base_branch...$head_branch --name-only`);
+}
+
+$diff = array_filter($diff);
+
+foreach (glob("parameters/*/*", GLOB_ONLYDIR) as $project_dir) {
+  $project_name = @array_pop(explode('/', $project_dir));
+
+  if (!file_exists("$project_dir/config.yml")) {
+    // Projects that don't have a config.yml can't be created.
+    continue;
+  }
+
+  // If we're on a tag - add all projects to the release.
+  // @todo: refactor to only deploy particular projects even
+  // on tagged deployments.
+  if (!empty($on_tag) && !in_array(['project' => $project_name], $matrix)) {
+    $matrix[] = ['project' => $project_name];
+    continue;
+  }
+
+  // If the project config has changed this project needs to be added to the matrix.
+  if (in_array("$project_dir/config.yml", $diff) && !in_array(['project' => $project_name], $matrix)) {
+      $matrix[] = ['project' => $project_name];
+    continue;
+  }
+
+  $base = trim(`cat "$project_dir/config.yml" | gojq --yaml-input --raw-output ".base"`);
+
+  if ($base == 'null') {
+    $base = 'default';
+  }
+
+  // If the base configuration has been changed this project needs to be added.
+  foreach ($diff as $file) {
+    if (strpos($file, "base/$base") > -1 && !in_array(['project' => $project_name], $matrix)) {
+      $matrix[] = ['project' => $project_name];
+    }
+  }
+}
+
+echo json_encode($matrix) . PHP_EOL;
