@@ -20,21 +20,16 @@ jobs:
         echo "Event: ${{ toJson(github.event) }}"
         echo "Compare: ${{ github.event.compare }}"
         for commit in ${{ github.event.commits }}; do
-            echo "Commit:${{ toJson($commit) }} "
+            echo "Commit:${{ toJson($commit) }}"
+            # For each commit, get the list of modified files from the modified property which is an array of
             for file in $commit.modified; do
                 echo "File: ${{ toJSON($file) }}"
             done
         done
     
     - name: Get list of changed files
+      env:
+        GITHUB_SHA_BEFORE: ${{ github.event.before }}
+        GITHUB_SHA_AFTER: ${{ github.sha }}
       run: |
-        git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
-        cat changed_files.txt
-
-    - name: Analyze changed files
-      run: |
-        # Your analysis script here
-        while read file; do
-            echo "Analyzing $file"
-            # Your analysis commands here
-        done < changed_files.txt
+        git diff --name-only $GITHUB_SHA_BEFORE $GITHUB_SHA_BEFORE
