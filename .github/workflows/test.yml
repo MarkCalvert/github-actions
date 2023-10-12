@@ -17,15 +17,11 @@ jobs:
 
     - name: Show event data
       run: |
+      env:
+        COMMITS: ${{ toJson(github.event.commits) }}
         echo "Event: ${{ toJson(github.event) }}"
         echo "Compare: ${{ github.event.compare }}"
-        for commit in ${{ github.event.commits }}; do
-            echo "Commit:${{ toJson($commit) }}"
-            # For each commit, get the list of modified files from the modified property which is an array of
-            for file in $commit.modified; do
-                echo "File: ${{ toJSON($file) }}"
-            done
-        done
+        echo "Commits: $COMMITS"
     
     - name: Get list of changed files
       env:
