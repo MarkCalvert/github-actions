@@ -21,6 +21,7 @@ jobs:
           echo "ENV_REF: $GITHUB_REF"
           echo "GITHUB_REF 1: ${{ github.ref }}"
           echo "GITHUB_REF_NAME: ${{ github.ref_name }}"
+          echo" GITHUB_BASE_REF: ${{ github.base_ref }}"
       - name: Prepare the host matrix
         id: set-matrix
         env:
@@ -32,15 +33,15 @@ jobs:
           matrix=$(./.github/workflows/prepare_matrix)
           echo "$matrix"
           echo "::set-output name=matrix::{\"include\":$(echo $matrix)}"
-      - name: Check the matrix
-        id: check-matrix
-        run: |
-          matrix=$(./.github/workflows/prepare_matrix | gojq length)
-          echo "$matrix";
-          if [[ "$matrix" -gt 0 ]]; then
-            echo "==> [info]: Matrix has values, updating step output has_matrix=true."
-            echo "::set-output name=has_matrix::true"
-          else
-            echo "==> [info]: Matrix is empty, updating step output has_matrix=false."
-            echo "::set-output name=has_matrix::false"
-          fi
+      # - name: Check the matrix
+      #   id: check-matrix
+      #   run: |
+      #     matrix=$(./.github/workflows/prepare_matrix | gojq length)
+      #     echo "$matrix";
+      #     if [[ "$matrix" -gt 0 ]]; then
+      #       echo "==> [info]: Matrix has values, updating step output has_matrix=true."
+      #       echo "::set-output name=has_matrix::true"
+      #     else
+      #       echo "==> [info]: Matrix is empty, updating step output has_matrix=false."
+      #       echo "::set-output name=has_matrix::false"
+      #     fi
