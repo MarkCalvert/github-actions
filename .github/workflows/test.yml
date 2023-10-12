@@ -1,0 +1,33 @@
+name: Analyze Changes in Master
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Show event data
+      run: |
+        echo ${{ github.event }}
+        echo ${{ github.event.compare }}
+        echo ${{ github.event.commits }}
+    
+    - name: Get list of changed files
+      run: |
+        git diff --name-only ${{ github.event.before }} ${{ github.sha }} > changed_files.txt
+        cat changed_files.txt
+
+    - name: Analyze changed files
+      run: |
+        # Your analysis script here
+        while read file; do
+            echo "Analyzing $file"
+            # Your analysis commands here
+        done < changed_files.txt
