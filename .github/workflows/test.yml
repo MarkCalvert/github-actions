@@ -15,7 +15,7 @@ jobs:
 
     - name: Show event data
       run: |
-        echo "Event: "${{ github.event }}"
+        echo "Event: $(echo '${{ toJson(github.event) }}')"
         echo "Compare: "${{ github.event.compare }}"
         echo "Commits: "${{ github.event.commits }}"
     
