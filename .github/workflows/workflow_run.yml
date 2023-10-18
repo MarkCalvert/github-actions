@@ -12,4 +12,5 @@ jobs:
       - name: Test
         run: |
             echo "Hello: ${{ github.event.inputs.test }}"
+            echo "Event: ${{ toJson(github.event) }}"
             echo "Workflow: ${{ toJson(github.event.workflow_run) }}"
