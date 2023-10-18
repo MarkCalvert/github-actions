@@ -1,0 +1,15 @@
+# Basic workflow run action
+name: workflow_run_test
+on:
+  workflow_dispatch:
+    inputs:
+      test:
+        type: string
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test
+        run: |
+            echo "Hello: ${{ github.event.inputs.test }}"
+            echo "Workflow: ${{ toJson(github.event.workflow_run) }}"
