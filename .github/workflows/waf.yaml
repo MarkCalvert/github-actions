@@ -11,7 +11,7 @@ on:
 jobs:
   quant_waf:
     name: Quant WAF testing
-    runs-on: biggy
+    runs-on: ubuntu-latest
     container:
       image: ghcr.io/dpc-sdp/bay/ci-builder:5.x
     steps:
