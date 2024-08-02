@@ -1,7 +1,7 @@
 name: Test QuantWAF
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       be_url:
         description: The backend URL for testing
