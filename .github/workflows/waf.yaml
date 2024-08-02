@@ -1,0 +1,54 @@
+name: Test QuantWAF
+
+on:
+  workflow_call:
+    inputs:
+      be_url:
+        description: The backend URL for testing
+        type: string
+        required: true
+
+jobs:
+  quant_waf:
+    name: Quant WAF testing
+    runs-on: biggy
+    container:
+      image: ghcr.io/dpc-sdp/bay/ci-builder:5.x
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Environment variables
+        run: |
+          echo 'BE_BASE_URL=${{ inputs.be_url }}' >> $GITHUB_ENV
+      - name: Wake test target
+        run: |
+          curl ${BE_BASE_URL} -s -S --max-time 1000 --write-out '%{http_code}' --output /dev/null;
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
+      - name: Restore cache
+        uses: actions/cache@v4
+        id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
+        with:
+            path: ${{ steps.npm-cache-dir.outputs.dir }}
+            key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+            restore-keys: |
+              ${{ runner.os }}-node-
+      - name: Install dependencies
+        run: |
+          npm install -g newman newman-reporter-htmlextra
+      - name: Run core Newman API tests
+        run: |
+          if [ -e tests/newman/quant_waf.collection.json ]
+          then
+            newman run tests/newman/quant_waf.collection.json --env-var "host=${BE_BASE_URL}" --color on -r htmlextra --reporter-htmlextra-export ./tests/newman/quant_waf.collection.report.html;
+          else
+            echo "==> No Postman API test collection is found. Skip the test."
+          fi
+      - name: Upload QuantWAF API test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: quant-waf-test-report
+          path: ./tests/newman/quant_waf.collection.report.html
