@@ -1,0 +1,804 @@
+{
+	"info": {
+		"_postman_id": "f2a4b18c-1fee-4ba1-ac06-dd723455c30d",
+		"name": "SDP QuantWAF",
+		"description": "A collection of common QuantWAF block tests for SDP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13247224"
+	},
+	"item": [
+		{
+			"name": "920270",
+			"item": [
+				{
+					"name": "1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}/get?test%00=test1",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"get"
+							],
+							"query": [
+								{
+									"key": "test%00",
+									"value": "test1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}/get?test=test1%00",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"get"
+							],
+							"query": [
+								{
+									"key": "test",
+									"value": "test1%00"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "test",
+								"value": "localhost%00",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{host}}/get?test=test1",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"get"
+							],
+							"query": [
+								{
+									"key": "test",
+									"value": "test1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Referer",
+								"value": "anything%00",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{host}}/get?test%40=test1",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"get"
+							],
+							"query": [
+								{
+									"key": "test%40",
+									"value": "test1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Referer",
+								"value": "anything%00",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{host}}/get?test%FD=test1",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"get"
+							],
+							"query": [
+								{
+									"key": "test%FD",
+									"value": "test1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Unix shell RCE wordlist for more than 3 characters",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.test(\"Validate the presence of 'Rule was 920270' in the response body\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Rule was: 920270\");",
+							"});",
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "930100",
+			"item": [
+				{
+					"name": "Path Traversal Attack Triple Dot (/.../)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}/get?foo=../.../WINDOWS/win.ini",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"get"
+							],
+							"query": [
+								{
+									"key": "foo",
+									"value": "../.../WINDOWS/win.ini"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Status Page Test - Path Traversal Attack (<backslash>../), partially encoded",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "FoobarHeader",
+								"value": "0x5c0x2e./",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{protocol}}://{{host}}/get",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"get"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Application attack LFI",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.test(\"Validate the presence of 'Rule was 930100' in the response body\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Rule was: 930100\");",
+							"});",
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "932130",
+			"item": [
+				{
+					"name": "1",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{host}}/get?932130-1=$(cmd)",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"get"
+							],
+							"query": [
+								{
+									"key": "932130-1",
+									"value": "$(cmd)"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "932130-2=${cmd}"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Application attack LFI",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.test(\"Validate the presence of 'Rule was 932130' in the response body\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Rule was: 932130\");",
+							"});",
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "932235",
+			"item": [
+				{
+					"name": "4JOGUXYQ",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "code=;find /etc -name passwd -exec cat {} +"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "932235: Unix shell RCE wordlist for more than 3 characters",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.test(\"Validate the presence of 'Rule was 932235' in the response body\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Rule was: 932235\");",
+							"});",
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "942100",
+			"item": [
+				{
+					"name": "Simple SQL Injection",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=1234 OR 1=1"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Simple SQL injection 2",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=-1839' or '1'='1"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Simple SQL injection 3",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=-1839\" or \"1\"=\"2"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Basic SQL injection",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=2010-01-01'+sleep(20.to_i)+'"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Simple SQL injection 4",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=EmptyValue' and 526=527"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Simple SQL injection 5",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=foo') UNION ALL select NULL --"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Advanced SQL injection",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=foo')waitfor%20delay'5%3a0%3a20'--"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Simple SQL Injection 6",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=JKGHUKGDI8TDHLFJH72FZLFJSKFH' and sleep(12) --"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Simple SQL injection 7",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=/path/to/file/unitests.txt') UNION ALL select NULL --"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Simple function call",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=sleep(20)"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Advanced SQL injection 9",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=unittests@coreruleset.org\" sleep(10.to_i) \""
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Advanced injection",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=\" | type %SystemDrive%\\\\config.ini | \""
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Advanced SQL injection 10",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "var=\\\"unittests@coreruleset.org\\\"')) and (select*from(select(sleep(5)))x) --"
+						},
+						"url": {
+							"raw": "{{protocol}}://{{host}}/post",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{host}}"
+							],
+							"path": [
+								"post"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "942100: SQL Injection Tests",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							"pm.test(\"Validate the presence of 'Rule was 942100' in the response body\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"Rule was: 942100\");",
+							"});",
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"pm.test(\"Response status code is 403\", function () {",
+					"    pm.expect(pm.response.code).to.equal(403);",
+					"});",
+					"",
+					"pm.test(\"Validate the presence of 'Blocked by WAF' in the response body\", function () {",
+					"    pm.expect(pm.response.text()).to.include(\"Blocked by WAF\");",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": ""
+		},
+		{
+			"key": "protocol",
+			"value": "https"
+		}
+	]
+}
