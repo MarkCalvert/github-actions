@@ -1,0 +1,125 @@
+name: shipshape
+
+on: 
+  workflow_call:
+    inputs:
+      shipshape-version:
+        description: Version of shipshape to use.
+        type: string
+        required: false
+        default: v1.0.0-alpha.1.5.0
+      sdp-platform-rules-version:
+        description: Version of SDP Platform Rules to use.
+        type: string
+        required: false
+        default: v1.0.1
+      table-output:
+        description: Output format. Allowed values are 'junit', 'json', 'table', or 'pretty'.
+        type: string
+        required: false
+        default: junit
+      fail-severity:
+        description: Severity to fail on.
+        type: string
+        required: false
+        default: high
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  audit:
+    name: shipshape_audit
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/dpc-sdp/bay/ci-builder:6.x
+    steps:
+      - name: Validate inputs
+        shell: bash
+        run: |
+          # Validate table-output
+          case "${{ inputs.table-output }}" in
+            "json"|"table"|"junit"|"pretty")
+              echo "Valid output format: ${{ inputs.table-output }}"
+              ;;
+            *)
+              echo "Error: Invalid value for table-output: '${{ inputs.table-output }}'"
+              echo "Allowed values are 'json', 'table', 'junit', or 'pretty'."
+              exit 1
+              ;;
+          esac
+          
+          # Validate fail-severity
+          case "${{ inputs.fail-severity }}" in
+            "high"|"normal"|"low")
+              echo "Valid severity level: ${{ inputs.fail-severity }}"
+              ;;
+            *)
+              echo "Error: Invalid value for fail-severity: '${{ inputs.fail-severity }}'"
+              echo "Allowed values are 'high', 'normal', or 'low'."
+              exit 1
+              ;;
+          esac
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Get Cached Shipshape Binary
+        id: cache-shipshape
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/shipshape
+          key: shipshape-${{ inputs.shipshape-version }}
+          restore-keys: |
+            shipshape-
+      - name: Download Shipshape if not cached
+        if: steps.cache-shipshape.outputs.cache-hit != 'true'
+        run: |
+          # Download shipshape binary
+          curl -L -o /usr/local/bin/shipshape https://github.com/salsadigitalauorg/shipshape/releases/download/${{ inputs.shipshape-version }}/shipshape-$(uname -s)-$(uname -m) && \
+          chmod +x /usr/local/bin/shipshape
+      - name: Get Cached SDP Platform Rules
+        id: cache-sdp-rules
+        uses: actions/cache@v4
+        with:
+          path: shipshape.yml
+          key: sdp-platform-rules-${{ inputs.sdp-platform-rules-version }}
+          restore-keys: |
+            sdp-platform-rules-
+      - name: Download SDP Platform Rules if not cached
+        if: steps.cache-sdp-rules.outputs.cache-hit != 'true'
+        run: |
+          #curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -L -o shipshape.yml https://raw.githubusercontent.com/dpc-sdp/sdp-platform-rules/${{ inputs.sdp-platform-rules-version }}/shipshape.yml
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -L -o shipshape.yml https://raw.githubusercontent.com/MarkCalvert/sdp-platform-rules/refs/tags/${{ inputs.sdp-platform-rules-version }}/shipshape.yml
+      - name: Audit codebase
+        id: audit
+        shell: bash
+        run: |
+          # Create file extension based on table-output
+          case "${{ inputs.table-output }}" in
+            "json")
+              file_extension=".json"
+              ;;
+            "table")
+              file_extension=".txt" 
+              ;;
+            "junit")
+              file_extension=".xml"
+              ;;
+            "pretty")
+              file_extension=".txt"
+              ;;
+          esac
+          # Run shipshape, output to a file and get exit code
+          shipshape run . -f shipshape.yml --error-code  --output-format ${{ inputs.table-output }} --fail-severity ${{ inputs.fail-severity }} > shipshape-output$file_extension
+          # Set the file extension as an output
+          echo "file_extension=$file_extension" >> $GITHUB_OUTPUT
+      - name: Upload audit report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audit-report
+          path: shipshape-output${{ steps.audit.outputs.file_extension }}
+      - name: Publish audit report
+        uses: mikepenz/action-junit-report@v5
+        if: always() && inputs.table-output == 'junit'
+        with:
+          report_paths: 'shipshape-output${{ steps.audit.outputs.file_extension }}'      
