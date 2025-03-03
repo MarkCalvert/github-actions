@@ -24,6 +24,12 @@ on:
         required: false
         default: high
 
+# Add permissions block
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
 env:
   REGISTRY: ghcr.io
 
