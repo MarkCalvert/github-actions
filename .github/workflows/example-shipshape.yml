@@ -16,6 +16,3 @@ jobs:
   run-shipshape:
     uses: ./.github/workflows/shipshape.yml
     secrets: inherit # This is needed to pass GITHUB_TOKEN to the called workflow
-    with:
-      # Optional parameters with defaults shown
-      sdp-platform-rules-version: "v1.0.2"

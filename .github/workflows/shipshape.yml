@@ -2,17 +2,6 @@ name: shipshape
 
 on:
   workflow_call:
-    inputs:
-      shipshape-version:
-        description: Version of shipshape to use.
-        type: string
-        required: false
-        default: v1.0.0-alpha.1.5.0
-      sdp-platform-rules-version:
-        description: Version of SDP Platform Rules to use.
-        type: string
-        required: false
-        default: v1.0.0
 
 # Add permissions block
 permissions:
@@ -21,7 +10,8 @@ permissions:
   pull-requests: write
 
 env:
-  REGISTRY: ghcr.io
+  SHIPSHAPE_VERSION: v1.0.0-alpha.1.5.0
+  SDP_PLATFORM_RULES_VERSION: v1.0.2
 
 jobs:
   audit:
@@ -37,21 +27,21 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /usr/local/bin/shipshape
-          key: shipshape-${{ inputs.shipshape-version }}
+          key: shipshape-${{ env.SHIPSHAPE_VERSION }}
           restore-keys: |
             shipshape-
       - name: Download Shipshape if not cached
         if: steps.cache-shipshape.outputs.cache-hit != 'true'
         run: |
           # Download shipshape binary
-          curl -L -o /usr/local/bin/shipshape https://github.com/salsadigitalauorg/shipshape/releases/download/${{ inputs.shipshape-version }}/shipshape-$(uname -s)-$(uname -m) && \
+          curl -L -o /usr/local/bin/shipshape https://github.com/salsadigitalauorg/shipshape/releases/download/${{ env.SHIPSHAPE_VERSION }}/shipshape-$(uname -s)-$(uname -m) && \
           chmod +x /usr/local/bin/shipshape
       - name: Get Cached SDP Platform Rules
         id: cache-sdp-rules
         uses: actions/cache@v4
         with:
           path: shipshape.yml
-          key: sdp-platform-rules-${{ inputs.sdp-platform-rules-version }}
+          key: sdp-platform-rules-${{ env.SDP_PLATFORM_RULES_VERSION }}
           restore-keys: |
             sdp-platform-rules-
       - name: Download SDP Platform Rules if not cached
@@ -60,7 +50,7 @@ jobs:
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                -H "Accept: application/vnd.github.raw" \
                -L -o shipshape.yml \
-               https://api.github.com/repos/MarkCalvert/sdp-platform-rules/contents/shipshape.yml?ref=${{ inputs.sdp-platform-rules-version }}
+               https://api.github.com/repos/MarkCalvert/sdp-platform-rules/contents/shipshape.yml?ref=${{ env.SDP_PLATFORM_RULES_VERSION }}
       - name: Audit codebase
         shell: bash
         run: |
