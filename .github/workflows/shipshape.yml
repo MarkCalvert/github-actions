@@ -137,12 +137,15 @@ jobs:
             shipshape_config=$(cat shipshape.yml)
             # Search for file format in output config
             file_format=$(yq e '.output.file.format' shipshape.yml)
+            echo "file_format=$file_format"
             # Search for file path in output config
             file_path=$(yq e '.output.file.path' shipshape.yml) 
+            echo "file_format=$file_format"
             shipshape run . -f shipshape.yml --error-code --fail-severity ${{ inputs.fail-severity }} > shipshape-output$file_extension
           else
             shipshape run . -f shipshape.yml --error-code --output-format ${{ inputs.table-output }} --fail-severity ${{ inputs.fail-severity }} > shipshape-output$file_extension
             file_path=shipshape-output$file_extension
+            echo "file_path=$file_path"
           fi
           # Set the file extension as an output
           echo "file_extension=$file_extension" >> $GITHUB_OUTPUT
