@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main]
 
+# Add permissions block with required permissions
+permissions:
+  checks: write
+  contents: read
+  pull-requests: write
+
 jobs:
   run-shipshape:
     uses: ./.github/workflows/shipshape.yml
