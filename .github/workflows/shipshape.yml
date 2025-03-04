@@ -1,6 +1,6 @@
 name: shipshape
 
-on: 
+on:
   workflow_call:
     inputs:
       shipshape-version:
@@ -12,12 +12,12 @@ on:
         description: Version of SDP Platform Rules to use.
         type: string
         required: false
-        default: v1.0.1
+        default: v1.0.0
       table-output:
-        description: Output format. Allowed values are 'junit', 'json', 'table', or 'pretty'.
+        description: Output format. Allowed values are 'junit', 'json', 'table', 'pretty', or 'config'.
         type: string
         required: false
-        default: junit
+        default: pretty
       fail-severity:
         description: Severity to fail on.
         type: string
@@ -45,7 +45,7 @@ jobs:
         run: |
           # Validate table-output
           case "${{ inputs.table-output }}" in
-            "json"|"table"|"junit"|"pretty")
+            "json"|"table"|"junit"|"pretty"|"config")
               echo "Valid output format: ${{ inputs.table-output }}"
               ;;
             *)
@@ -54,7 +54,7 @@ jobs:
               exit 1
               ;;
           esac
-          
+
           # Validate fail-severity
           case "${{ inputs.fail-severity }}" in
             "high"|"normal"|"low")
@@ -95,6 +95,10 @@ jobs:
         run: |
           #curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -L -o shipshape.yml https://raw.githubusercontent.com/dpc-sdp/sdp-platform-rules/${{ inputs.sdp-platform-rules-version }}/shipshape.yml
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -L -o shipshape.yml https://raw.githubusercontent.com/MarkCalvert/sdp-platform-rules/refs/tags/${{ inputs.sdp-platform-rules-version }}/shipshape.yml
+      - name: Install yq
+        run: |
+          wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          chmod a+x /usr/local/bin/yq
       - name: Audit codebase
         id: audit
         shell: bash
@@ -113,19 +117,35 @@ jobs:
             "pretty")
               file_extension=".txt"
               ;;
+            "config")
+              file_extension=".txt"
+              ;;
           esac
           # Run shipshape, output to a file and get exit code
-          shipshape run . -f shipshape.yml --error-code  --output-format ${{ inputs.table-output }} --fail-severity ${{ inputs.fail-severity }} > shipshape-output$file_extension
+          if [ "${{ inputs.table-output }}" == "config" ]; then
+            # Output config is set in shipshape.yml for stdout and file
+            # Load shipshape.yml
+            shipshape_config=$(cat shipshape.yml)
+            # Search for file format in output config
+            file_format=$(yq e '.output.file.format' shipshape.yml)
+            # Search for file path in output config
+            file_path=$(yq e '.output.file.path' shipshape.yml) 
+            shipshape run . -f shipshape.yml --error-code --fail-severity ${{ inputs.fail-severity }} > shipshape-output$file_extension
+          else
+            shipshape run . -f shipshape.yml --error-code --output-format ${{ inputs.table-output }} --fail-severity ${{ inputs.fail-severity }} > shipshape-output$file_extension
+            file_path=shipshape-output$file_extension
+          fi
           # Set the file extension as an output
           echo "file_extension=$file_extension" >> $GITHUB_OUTPUT
+          echo "file_path=$file_path" >> $GITHUB_OUTPUT
       - name: Upload audit report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: audit-report
           path: shipshape-output${{ steps.audit.outputs.file_extension }}
-      - name: Publish audit report
+      - name: Publish junit report
         uses: mikepenz/action-junit-report@v5
-        if: always() && inputs.table-output == 'junit'
+        if: always() && (inputs.table-output == 'junit' || steps.audit.outputs.file_format == 'junit')
         with:
-          report_paths: 'shipshape-output${{ steps.audit.outputs.file_extension }}'      
+          report_paths: "${{ steps.audit.outputs.file_path }}"
