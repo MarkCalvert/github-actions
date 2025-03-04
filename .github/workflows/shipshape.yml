@@ -65,8 +65,8 @@ jobs:
           # Run shipshape
           ls -la
           cat shipshape.yml
-          shipshape run . -f shipshape.yml --debug --error-code
-          # shipshape run . -f shipshape.yml --error-code --output-format junit > shipshape-results.xml
+          # shipshape run . -f shipshape.yml --debug --error-code
+          shipshape run . -f shipshape.yml --error-code --output-format junit --debug > shipshape-results.xml
       - name: Upload audit report
         uses: actions/upload-artifact@v4
         if: always()
