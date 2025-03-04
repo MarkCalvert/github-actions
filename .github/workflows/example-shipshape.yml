@@ -18,7 +18,7 @@ jobs:
     with:
       # Optional parameters with defaults shown
       shipshape-version: 'v1.0.0-alpha.1.5.0'
-      sdp-platform-rules-version: 'v1.0.1'
-      table-output: 'junit'
+      sdp-platform-rules-version: 'v1.0.3'
+      table-output: 'config'
       fail-severity: 'high'
     secrets: inherit  # This is needed to pass GITHUB_TOKEN to the called workflow 
