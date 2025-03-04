@@ -95,7 +95,16 @@ jobs:
         run: |
           #curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -L -o shipshape.yml https://raw.githubusercontent.com/dpc-sdp/sdp-platform-rules/${{ inputs.sdp-platform-rules-version }}/shipshape.yml
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -L -o shipshape.yml https://raw.githubusercontent.com/MarkCalvert/sdp-platform-rules/refs/tags/${{ inputs.sdp-platform-rules-version }}/shipshape.yml
-      - name: Install yq
+      - name: Get Cached yq Binary
+        id: cache-yq
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/bin/yq
+          key: yq-latest
+          restore-keys: |
+            yq-
+      - name: Download yq if not cached
+        if: steps.cache-yq.outputs.cache-hit != 'true'
         run: |
           wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           chmod a+x /usr/local/bin/yq
