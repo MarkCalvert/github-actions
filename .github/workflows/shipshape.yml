@@ -10,7 +10,7 @@ permissions:
   pull-requests: write
 
 env:
-  SHIPSHAPE_VERSION: v1.0.0-alpha.1.5.0
+  SHIPSHAPE_VERSION: v1.0.0-alpha.1.5.1
   SDP_PLATFORM_RULES_VERSION: v1.0.2
 
 jobs:
@@ -55,13 +55,13 @@ jobs:
         shell: bash
         run: |
           # Run shipshape
-          shipshape run . -f shipshape.yml --error-code --output-format junit > shipshape-results.xml
+          shipshape run . -f shipshape.yml --error-code --output-format table --output-file results.xml --output-file-format junit > results.txt
       - name: Upload audit report
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: shipshape-results
-          path: shipshape-results.xml
+          path: shipshape-results.txt
       - name: Publish junit report
         uses: mikepenz/action-junit-report@v5
         if: always()
