@@ -55,12 +55,11 @@ jobs:
         shell: bash
         run: |
           # Run shipshape
-          shipshape run . -f shipshape.yml --error-code --output-format table --output-file results.xml --output-file-format junit > results.txt
+          shipshape run . -f shipshape.yml --error-code --output-format table --output-file shipshape-results.xml --output-file-format junit > shipshape-results.txt
       - name: Upload audit report
         uses: actions/upload-artifact@v4
         if: always()
-        with:
-          name: shipshape-results
+        with: 
           path: shipshape-results.txt
       - name: Publish junit report
         uses: mikepenz/action-junit-report@v5
