@@ -34,7 +34,10 @@ jobs:
         if: steps.cache-shipshape.outputs.cache-hit != 'true'
         run: |
           # Download shipshape binary
-          curl -L -o /usr/local/bin/shipshape https://github.com/salsadigitalauorg/shipshape/releases/download/${{ env.SHIPSHAPE_VERSION }}/shipshape-$(uname -s)-$(uname -m) && \
+          gh release download ${{ env.SHIPSHAPE_VERSION }} \
+            --repo salsadigitalauorg/shipshape \
+            --pattern "shipshape-$(uname -s)-$(uname -m)" \
+            --output /usr/local/bin/shipshape && \
           chmod +x /usr/local/bin/shipshape
       - name: Get Cached SDP Platform Rules
         id: cache-sdp-rules
@@ -76,3 +79,4 @@ jobs:
           fail_on_failure: false
           require_tests: false
           require_passed_tests: false
+          annotate_only: true
