@@ -61,7 +61,7 @@ jobs:
           
           # If there are errors, show a warning
           if [ $EXIT_CODE -ne 0 ]; then
-            echo "::warning::Shipshape audit found errors. Check the junit report for details."
+            echo "::warning::Shipshape audit found errors. Check the Junit Shipeshape Audit Report for details."
           fi
       - name: Upload audit report
         uses: actions/upload-artifact@v4
@@ -73,3 +73,5 @@ jobs:
         if: always()
         with:
           report_paths: shipshape-results.xml
+          check_name: Junit Shipshape Audit Report
+          check_annotations: false
