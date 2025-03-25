@@ -74,4 +74,5 @@ jobs:
         with:
           report_paths: shipshape-results.xml
           check_name: Junit Shipshape Audit Report
-          check_annotations: false
+          fail_on_failure: false
+          require_tests: false
