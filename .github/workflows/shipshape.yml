@@ -24,8 +24,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Install Github CLI
         run: |
-          sudo apt-get update && \
-          sudo apt-get install gh -y
+          apk add --update --no-cache gh
       - name: Get Cached Shipshape Binary
         id: cache-shipshape
         uses: actions/cache@v4
