@@ -211,4 +211,4 @@ module:
   tide: 1000
 theme:
   claro: 0
-profile: tide
+profile: test
