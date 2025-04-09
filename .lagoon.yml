@@ -210,7 +210,7 @@ production_routes:
     routes:
       - nginx-php:
           - "content.frv.vic.gov.au":
-              tls-acme: "true"
+              tls-acme: ""
               insecure: Allow
               hsts: max-age=31536000
               annotations:
