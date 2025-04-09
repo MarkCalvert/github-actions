@@ -12,7 +12,6 @@ permissions:
 env:
   SHIPSHAPE_VERSION: v1.0.0-alpha.1.5.1
   SDP_PLATFORM_RULES_VERSION: v1.0.2
-  GH_TOKEN: ${{ github.token }}
 
 jobs:
   audit:
@@ -23,9 +22,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Install Github CLI
-        run: |
-          apk add github-cli
       - name: Get Cached Shipshape Binary
         id: cache-shipshape
         uses: actions/cache@v4
@@ -38,10 +34,7 @@ jobs:
         if: steps.cache-shipshape.outputs.cache-hit != 'true'
         run: |
           # Download shipshape binary
-          gh release download ${{ env.SHIPSHAPE_VERSION }} \
-            --repo salsadigitalauorg/shipshape \
-            --pattern "shipshape-$(uname -s)-$(uname -m)" \
-            --output /usr/local/bin/shipshape && \
+          curl -L "https://github.com/salsadigitalauorg/shipshape/releases/download/${{ env.SHIPSHAPE_VERSION }}/shipshape-$(uname -s)-$(uname -m)" -o /usr/local/bin/shipshape
           chmod +x /usr/local/bin/shipshape
       - name: Get Cached SDP Platform Rules
         id: cache-sdp-rules
@@ -54,9 +47,10 @@ jobs:
       - name: Download SDP Platform Rules if not cached
         if: steps.cache-sdp-rules.outputs.cache-hit != 'true'
         run: |
-          gh api \
-            repos/MarkCalvert/sdp-platform-rules/contents/shipshape.yml?ref=${{ env.SDP_PLATFORM_RULES_VERSION }} \
-            --raw > shipshape.yml
+            curl -s -H "Authorization: token ${{ github.token }}" \
+            -H "Accept: application/vnd.github.raw" \
+            "https://api.github.com/repos/MarkCalvert/sdp-platform-rules/contents/shipshape.yml?ref=${{ env.SDP_PLATFORM_RULES_VERSION }}" \
+            -o shipshape.yml
       - name: Audit codebase
         shell: bash
         run: |
