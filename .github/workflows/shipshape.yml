@@ -55,7 +55,14 @@ jobs:
         shell: bash
         run: |
           # Run shipshape
-          shipshape run . -f shipshape.yml --output-format table --output-file shipshape-results.xml --output-file-format junit > shipshape-results.txt
+          set +e  # Don't exit on error
+          shipshape run . -f shipshape.yml --error-code --output-format table --output-file shipshape-results.xml --output-file-format junit > shipshape-results.txt
+          EXIT_CODE=$?
+          
+          # If there are errors, show a warning
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "::warning::Shipshape audit found errors. Check the Junit Shipeshape Audit Report for details."
+          fi
       - name: Upload audit report
         uses: actions/upload-artifact@v4
         if: always()
