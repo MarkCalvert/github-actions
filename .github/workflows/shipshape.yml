@@ -54,6 +54,7 @@ jobs:
       - name: Audit codebase
         shell: bash
         run: |
+          cat shipshape.yml
           # Run shipshape
           shipshape run . -f shipshape.yml --error-code --output-format table --output-file shipshape-results.xml --output-file-format junit > shipshape-results.txt
       - name: Upload audit report
