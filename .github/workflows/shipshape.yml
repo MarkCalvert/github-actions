@@ -47,9 +47,8 @@ jobs:
       - name: Download SDP Platform Rules if not cached
         if: steps.cache-sdp-rules.outputs.cache-hit != 'true'
         run: |
-          curl -s -H "Authorization: Bearer ${{ env.GH_TOKEN }}" \
-          -H "Accept: application/vnd.github.raw" \
-          "https://api.github.com/repos/MarkCalvert/sdp-platform-rules/contents/shipshape.yml?ref=${{ env.SDP_PLATFORM_RULES_VERSION }}" \
+          curl -s -L -H "Authorization: token ${{ env.GH_TOKEN }}" \
+          "https://raw.githubusercontent.com/MarkCalvert/sdp-platform-rules/${{ env.SDP_PLATFORM_RULES_VERSION }}/shipshape.yml" \
           -o shipshape.yml
       - name: Audit codebase
         shell: bash
