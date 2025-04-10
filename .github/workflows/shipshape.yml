@@ -12,7 +12,7 @@ permissions:
 env:
   SHIPSHAPE_VERSION: v1.0.0-alpha.1.5.1
   SDP_PLATFORM_RULES_VERSION: v1.0.3
-
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   audit:
     name: shipshape_audit
@@ -47,7 +47,7 @@ jobs:
       - name: Download SDP Platform Rules if not cached
         if: steps.cache-sdp-rules.outputs.cache-hit != 'true'
         run: |
-          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          curl -s -H "Authorization: Bearer ${{ env.GH_TOKEN }}" \
           -H "Accept: application/vnd.github.raw" \
           "https://api.github.com/repos/MarkCalvert/sdp-platform-rules/contents/shipshape.yml?ref=${{ env.SDP_PLATFORM_RULES_VERSION }}" \
           -o shipshape.yml
