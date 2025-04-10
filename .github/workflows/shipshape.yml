@@ -12,7 +12,6 @@ permissions:
 env:
   SHIPSHAPE_VERSION: v1.0.0-alpha.1.5.1
   SDP_PLATFORM_RULES_VERSION: v1.0.3
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   audit:
     name: shipshape_audit
@@ -47,13 +46,12 @@ jobs:
       - name: Download SDP Platform Rules if not cached
         if: steps.cache-sdp-rules.outputs.cache-hit != 'true'
         run: |
-          curl -s -L -H "Authorization: token ${{ env.GH_TOKEN }}" \
+          curl -s -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
           "https://raw.githubusercontent.com/MarkCalvert/sdp-platform-rules/${{ env.SDP_PLATFORM_RULES_VERSION }}/shipshape.yml" \
           -o shipshape.yml
       - name: Audit codebase
         shell: bash
         run: |
-          cat shipshape.yml
           # Run shipshape
           shipshape run . -f shipshape.yml --error-code --output-format table --output-file shipshape-results.xml --output-file-format junit > shipshape-results.txt
       - name: Upload audit report
