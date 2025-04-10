@@ -11,7 +11,7 @@ permissions:
 
 env:
   SHIPSHAPE_VERSION: v1.0.0-alpha.1.5.1
-  SDP_PLATFORM_RULES_VERSION: v1.0.2
+  SDP_PLATFORM_RULES_VERSION: v1.0.3
 
 jobs:
   audit:
