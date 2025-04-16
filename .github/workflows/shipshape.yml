@@ -35,25 +35,11 @@ jobs:
           # Download shipshape binary
           curl -L "https://github.com/salsadigitalauorg/shipshape/releases/download/${{ env.SHIPSHAPE_VERSION }}/shipshape-$(uname -s)-$(uname -m)" -o /usr/local/bin/shipshape
           chmod +x /usr/local/bin/shipshape
-      - name: Get Cached SDP Platform Rules
-        id: cache-sdp-rules
-        uses: actions/cache@v4
-        with:
-          path: shipshape.yml
-          key: sdp-platform-rules-${{ env.SDP_PLATFORM_RULES_VERSION }}
-          restore-keys: |
-            sdp-platform-rules-
-      - name: Download SDP Platform Rules if not cached
-        if: steps.cache-sdp-rules.outputs.cache-hit != 'true'
-        run: |
-          curl -s -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          "https://raw.githubusercontent.com/MarkCalvert/sdp-platform-rules/${{ env.SDP_PLATFORM_RULES_VERSION }}/shipshape.yml" \
-          -o shipshape.yml
       - name: Audit codebase
         shell: bash
         run: |
           # Run shipshape
-          shipshape run . -f shipshape.yml --output-format table --output-file shipshape-results.xml --output-file-format junit > shipshape-results.txt
+          shipshape run . -f platform_rules/shipshape.yml --output-format table --output-file shipshape-results.xml --output-file-format junit > shipshape-results.txt
       - name: Upload audit report
         uses: actions/upload-artifact@v4
         if: always()
