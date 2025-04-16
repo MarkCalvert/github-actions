@@ -11,7 +11,7 @@ on:
         description: Set to true to run shipshape audit.
         type: boolean
         required: false
-        default: false
+        default: true
       
 # Add permissions block with required permissions
 permissions:
