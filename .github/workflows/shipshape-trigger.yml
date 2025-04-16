@@ -1,0 +1,14 @@
+name: Shipshape Audit Trigger
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  trigger-shipshape:
+    uses: ./.github/workflows/example-shipshape.yml
+    secrets: inherit 
+    with:
+      run_shipshape_audit: true

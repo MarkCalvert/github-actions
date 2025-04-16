@@ -11,8 +11,7 @@ permissions:
 
 env:
   SHIPSHAPE_VERSION: v1.0.0-alpha.1.5.1
-  SDP_PLATFORM_RULES_VERSION: v1.0.2
-
+  SDP_PLATFORM_RULES_VERSION: v1.0.3
 jobs:
   audit:
     name: shipshape_audit
@@ -34,35 +33,25 @@ jobs:
         if: steps.cache-shipshape.outputs.cache-hit != 'true'
         run: |
           # Download shipshape binary
-          curl -L -o /usr/local/bin/shipshape https://github.com/salsadigitalauorg/shipshape/releases/download/${{ env.SHIPSHAPE_VERSION }}/shipshape-$(uname -s)-$(uname -m) && \
+          curl -L "https://github.com/salsadigitalauorg/shipshape/releases/download/${{ env.SHIPSHAPE_VERSION }}/shipshape-$(uname -s)-$(uname -m)" -o /usr/local/bin/shipshape
           chmod +x /usr/local/bin/shipshape
-      - name: Get Cached SDP Platform Rules
-        id: cache-sdp-rules
-        uses: actions/cache@v4
-        with:
-          path: shipshape.yml
-          key: sdp-platform-rules-${{ env.SDP_PLATFORM_RULES_VERSION }}
-          restore-keys: |
-            sdp-platform-rules-
-      - name: Download SDP Platform Rules if not cached
-        if: steps.cache-sdp-rules.outputs.cache-hit != 'true'
-        run: |
-          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-               -H "Accept: application/vnd.github.raw" \
-               -L -o shipshape.yml \
-               https://api.github.com/repos/MarkCalvert/sdp-platform-rules/contents/shipshape.yml?ref=${{ env.SDP_PLATFORM_RULES_VERSION }}
       - name: Audit codebase
         shell: bash
         run: |
           # Run shipshape
-          shipshape run . -f shipshape.yml --error-code --output-format table --output-file shipshape-results.xml --output-file-format junit > shipshape-results.txt
+          shipshape run . -f platform_rules/shipshape.yml --output-format table --output-file shipshape-results.xml --output-file-format junit > shipshape-results.txt
       - name: Upload audit report
         uses: actions/upload-artifact@v4
         if: always()
-        with: 
+        with:
           path: shipshape-results.txt
       - name: Publish junit report
         uses: mikepenz/action-junit-report@v5
         if: always()
         with:
           report_paths: shipshape-results.xml
+          check_name: Junit Shipshape Audit Report
+          fail_on_failure: false
+          require_tests: false
+          require_passed_tests: false
+          annotate_only: false

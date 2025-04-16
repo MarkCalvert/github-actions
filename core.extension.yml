@@ -209,6 +209,9 @@ module:
   paragraphs: 11
   content_lock: 1000
   tide: 1000
+  test: 1
+  test_module: 1
+  other_module: 1
 theme:
   claro: 0
-profile: test
+

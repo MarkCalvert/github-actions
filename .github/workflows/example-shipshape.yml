@@ -1,11 +1,14 @@
 name: Example Shipshape Usage
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
+  workflow_call:
+    inputs:
+      run_shipshape_audit:
+        description: Set to true to run shipshape audit.
+        type: boolean
+        required: false
+        default: false
+      
 # Add permissions block with required permissions
 permissions:
   checks: write
@@ -14,5 +17,6 @@ permissions:
 
 jobs:
   run-shipshape:
+    if: ${{ inputs.run_shipshape_audit == true }}
     uses: ./.github/workflows/shipshape.yml
     secrets: inherit # This is needed to pass GITHUB_TOKEN to the called workflow
